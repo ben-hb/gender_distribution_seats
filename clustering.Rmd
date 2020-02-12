@@ -1,0 +1,49 @@
+---
+title: "Do We Cluster by Gender?"
+author: "Samuel and Ben"
+date: "2/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(infer)
+library(reprex)
+library(ggthemes)
+library(tidyverse)
+```
+
+```{r}
+library(infer)
+library(reprex)
+library(tidyverse)
+
+#1 is female 
+students <- tibble(female = rep(0:1, 15))
+
+tables <- students %>% 
+  rep_sample_n(size = 4, reps = 8000, replace = FALSE) %>% 
+  summarize(table = sum(female)) %>% 
+  select(table)
+
+samples <- tables %>% 
+  rep_sample_n(size = 8, reps = 1000) %>% 
+  group_by(replicate) %>% 
+  summarize(variance = var(table))
+
+```
+
+```{r}
+ggplot(samples, aes(x = variance)) + 
+  geom_density() + 
+  geom_vline(xintercept = 2, linetype = "dotted") + 
+  geom_text(aes(x = 2.4, y = .25, label = "Actual Variance = 2")) + 
+  theme_economist() +
+  labs(x ="Variance",
+       y = "Density",
+       title = "Do We Cluster by Gender?",
+       caption = "By Ben and Sam")
+```
+
+
+### It sure seems like it!
